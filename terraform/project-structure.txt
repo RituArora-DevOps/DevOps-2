@@ -1,0 +1,19 @@
+terraform/
+├── main.tf
+├── variables.tf
+├── outputs.tf
+├── backend.tf       # for S3 remote state
+├── provider.tf
+├── modules/
+│   ├── vpc/
+│   │   ├── main.tf
+│   │   ├── variables.tf
+│   │   └── outputs.tf
+│   ├── eks/
+│   ├── ecr/
+│   ├── iam/
+│   └── alb/
+└── environments/
+    └── dev/
+        ├── main.tf      # Calls the modules with specific values
+        └── terraform.tfvars
