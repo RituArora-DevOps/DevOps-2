@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: three-tier
+  labels:
+    role: frontend
+    env: demo
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: frontend
+  template:
+    metadata:
+      labels:
+        role: frontend
+    spec:
+      imagePullSecrets:
+      - name: <ECR_SECRET_NAME> # Tells Kubernetes how to authenticate with a private registry (in this case, AWS ECR)
+      containers:
+      - name: frontend
+        image: <ECR_IMAGE_URI> # Full ECR image URI pushed via Jenkins pipeline (tagged with an ID)
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 25%

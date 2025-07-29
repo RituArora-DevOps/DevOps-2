@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+  namespace: three-tier
+  labels:
+    role: backend
+    env: demo
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      role: backend
+  template:
+    metadata:
+      labels:
+        role: backend
+    spec:
+      imagePullSecrets:
+      - name: <ECR_SECRET_NAME> # Tells Kubernetes how to authenticate with a private registry (in this case, AWS ECR)
+      containers:
+      - name: backend
+        image: <ECR_IMAGE_URI> # Full ECR image URI pushed via Jenkins pipeline (tagged with an ID)
+        imagePullPolicy: Always
+        env:
+        - name: MONGO_CONN_STR   
+          value: mongodb://mongodb-svc:27017/todos?directConnection=true  # confirm mongo-db service name
+        - name: MONGO_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: backend-user-secret
+              key: backend-username
+        - name: MONGO_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: backend-user-secret
+              key: backend-password
+        ports:
+        - containerPort: 5000
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 5000
+          initialDelaySeconds: 2
+          periodSeconds: 5
+        startupProbe:
+          httpGet:
+            path: /startupz
+            port: 5000
+          failureThreshold: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 25%

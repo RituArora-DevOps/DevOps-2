@@ -1,0 +1,57 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: main-loadbalancer
+  namespace: three-tier
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing           # expose to internet
+    alb.ingress.kubernetes.io/target-type: ip                   # route directly to pod IPs
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}]'    # open port 80 on the ALB
+spec:
+  ingressClassName: alb
+  rules:
+  - host: todo.rituarora.dev
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/api/todos"
+        backend:
+          service:
+            name: backend-svc
+            port:
+              number: 5000
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: frontend-svc
+            port:
+              number: 3000
+      - pathType: Exact
+        path: "/healthz"
+        backend:
+          service:
+            name: backend-svc
+            port:
+              number: 5000
+      - pathType: Exact
+        path: "/readyz"
+        backend:
+          service:
+            name: backend-svc
+            port:
+              number: 5000
+      - pathType: Exact
+        path: "/startupz"
+        backend:
+          service:
+            name: backend-svc
+            port:
+              number: 5000
+      - pathType: Exact
+        path: "/livez"
+        backend:
+          service:
+            name: backend-svc
+            port:
+              number: 5000

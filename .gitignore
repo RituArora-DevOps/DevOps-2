@@ -1,0 +1,22 @@
+# Ignore local Terraform directories and state
+.terraform/
+*.tfstate
+*.tfstate.backup
+crash.log
+*.log
+
+# Ignore override files
+*.tfvars
+*.tfvars.json
+override.tf
+override.tf.json
+terraform.tf
+
+# Ignore IDE/editor settings
+.vscode/
+.idea/
+.DS_Store
+
+# Ignore specific folders
+blogs/
+learn-terraform-get-started-aws/
